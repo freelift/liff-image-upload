@@ -1,48 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>เลือกรูปจากแกลเลอรี่</title>
-</head>
-<body>
-  <h2>📤 เลือกรูปเพื่อส่งเข้าแชท</h2>
-  <input type="file" id="imageInput" accept="image/*"><br><br>
-  <img id="preview" width="200">
+<input type="file" id="imageInput" accept="image/*" style="display: none;" />
+<img id="preview" width="200" />
 
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script>
-    async function main() {
-      await liff.init({ liffId: "2007890470-ryZVnqlX" }); // 👈 เปลี่ยนตรงนี้
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+  async function main() {
+    await liff.init({ liffId: "YOUR_LIFF_ID" }); // แทนที่ด้วย LIFF ID ของคุณ
 
-      const imageInput = document.getElementById('imageInput');
-      const preview = document.getElementById('preview');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
 
-      imageInput.addEventListener('change', async function () {
-        const file = imageInput.files[0];
-        if (!file) return;
+    // เปิดแกลเลอรี่ทันทีเมื่อโหลดหน้า
+    window.onload = () => {
+      imageInput.click();
+    };
 
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          const base64 = e.target.result;
+    // ส่งภาพเข้าแชททันทีเมื่อเลือกรูป
+    imageInput.addEventListener('change', async function () {
+      const file = imageInput.files[0];
+      if (!file) return;
 
-          preview.src = base64;
+      const reader = new FileReader();
+      reader.onload = async function (e) {
+        const base64 = e.target.result;
 
-          await liff.sendMessages([
-            {
-              type: "image",
-              originalContentUrl: base64,
-              previewImageUrl: base64
-            }
-          ]);
+        preview.src = base64;
 
-          alert("📨 ส่งรูปภาพเข้าแชทเรียบร้อยแล้ว");
-          liff.closeWindow();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
+        // ส่งรูปกลับเข้าแชท LINE
+        await liff.sendMessages([
+          {
+            type: "image",
+            originalContentUrl: base64,
+            previewImageUrl: base64
+          }
+        ]);
 
-    main();
-  </script>
-</body>
-</html>
+        alert("✅ ส่งภาพเรียบร้อยแล้ว");
+        liff.closeWindow();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  main();
+</script>
